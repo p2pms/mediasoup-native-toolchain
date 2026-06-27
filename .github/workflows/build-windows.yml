@@ -20,14 +20,14 @@ on:
       mediasoupclient_version:
         description: 'libmediasoupclient version tag'
         required: false
-        default: 'v3.4.3'
+        default: '3.4.3'
   schedule:
     # Weekly build: Sunday 20:00 UTC (Monday 04:00 CST)
     - cron: '0 20 * * 0'
 
 env:
   WEBRTC_BRANCH: ${{ github.event.inputs.webrtc_branch || 'branch-heads/6099' }}
-  MEDIASOUPCLIENT_VERSION: ${{ github.event.inputs.mediasoupclient_version || 'v3.4.3' }}
+  MEDIASOUPCLIENT_VERSION: ${{ github.event.inputs.mediasoupclient_version || '3.4.3' }}
   CONFIG: Release
   ARCH: x64
 

@@ -21,7 +21,7 @@ webrtc:
 # libmediasoupclient build parameters
 # --------------------------------------------------------------------------------------------------
 mediasoupclient:
-  default_version: "v3.4.3"             # libmediasoupclient git tag
+  default_version: "3.4.3"              # libmediasoupclient git tag
 
 # --------------------------------------------------------------------------------------------------
 # Common toolchain build parameters
