@@ -312,7 +312,11 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
         print(f"[!] Warning: webrtc library not found at {lib_path}")
 
     # Copy headers (filtered)
-    exclude_dirs = {'out', 'examples', 'testing', 'build', 'tools', 'infra', 'docs', 'experiments'}
+    # Only include WebRTC public API headers and abseil-cpp (required by consumers
+    # for absl::optional, absl::string_view, etc. used in WebRTC public API).
+    # All other third_party/ directories (build tools, test frameworks, codec
+    # implementations, etc.) are excluded to avoid bloat and permission errors.
+    exclude_dirs = {'out', 'examples', 'testing', 'build', 'tools', 'infra', 'docs', 'experiments', 'third_party'}
     copied = 0
     for root, dirs, files in os.walk(src_dir):
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
@@ -330,6 +334,25 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
                     copied += 1
                 except Exception as e:
                     print(f"[-] Skipped {file}: {e}")
+
+    # Copy abseil-cpp headers separately (the only third_party dependency needed)
+    abseil_src = os.path.join(src_dir, "third_party", "abseil-cpp")
+    if os.path.exists(abseil_src):
+        for root, dirs, files in os.walk(abseil_src):
+            for file in files:
+                if file.endswith('.h'):
+                    src_file = os.path.join(root, file)
+                    rel_path = os.path.relpath(src_file, src_dir)
+                    dest_file = os.path.join(out_include_dir, rel_path)
+                    ensure_dir(os.path.dirname(dest_file))
+                    try:
+                        if os.path.exists(dest_file):
+                            os.chmod(dest_file, 0o777)
+                            os.remove(dest_file)
+                        shutil.copy2(src_file, dest_file)
+                        copied += 1
+                    except Exception as e:
+                        print(f"[-] Skipped {file}: {e}")
 
     print(f"[+] Packaged {copied} header files.")
 

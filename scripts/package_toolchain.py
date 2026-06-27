@@ -161,7 +161,12 @@ def package_toolchain(webrtc_branch, ms_version, arch, config):
                  os.path.join(archive_dir, "VERSIONS.json"))
     print(f"[+] VERSIONS.json copied to archive directory.")
 
-    # Cleanup staging
+    # Cleanup staging (handle read-only files left by CIPD/depot_tools on Windows)
+    for root, dirs, files in os.walk(staging_dir, topdown=False):
+        for name in files:
+            os.chmod(os.path.join(root, name), 0o777)
+        for name in dirs:
+            os.chmod(os.path.join(root, name), 0o777)
     shutil.rmtree(staging_dir)
     print("[*] Cleaned up staging directory.")
 
