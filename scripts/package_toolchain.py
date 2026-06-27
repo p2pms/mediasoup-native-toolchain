@@ -33,6 +33,7 @@ from utils import (
     sha256_file,
     write_versions_json,
 )
+from load_config import get as config
 
 
 ####################################################################################################

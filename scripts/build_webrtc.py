@@ -25,11 +25,7 @@ from utils import (
     ensure_output_layout,
     get_output_layout,
 )
-
-# === Defaults ===
-DEFAULT_BRANCH = "branch-heads/6099"  # M119/M120
-DEFAULT_ARCH = "x64"
-DEFAULT_CONFIG = "Release"
+from load_config import get as config
 
 
 ####################################################################################################
@@ -37,12 +33,14 @@ DEFAULT_CONFIG = "Release"
 ####################################################################################################
 def parse_args():
     parser = argparse.ArgumentParser(description="Build WebRTC static library")
-    parser.add_argument("--branch", type=str, default=DEFAULT_BRANCH,
-                        help=f"WebRTC branch to build [default: {DEFAULT_BRANCH}]")
-    parser.add_argument("--arch", type=str, default=DEFAULT_ARCH, choices=["x64", "x86", "arm64"],
-                        help=f"Target architecture [default: {DEFAULT_ARCH}]")
-    parser.add_argument("--config", type=str, default=DEFAULT_CONFIG, choices=["Release", "Debug"],
-                        help=f"Build configuration [default: {DEFAULT_CONFIG}]")
+    parser.add_argument("--branch", type=str, default=config("webrtc.default_branch"),
+                        help=f"WebRTC branch to build")
+    parser.add_argument("--arch", type=str, default=config("toolchain.default_arch"),
+                        choices=["x64", "x86", "arm64"],
+                        help=f"Target architecture")
+    parser.add_argument("--config", type=str, default=config("toolchain.default_config"),
+                        choices=["Release", "Debug"],
+                        help=f"Build configuration")
     parser.add_argument("--build", action="store_true",
                         help="Build after generating GN files")
     parser.add_argument("--package", action="store_true",

@@ -27,11 +27,12 @@ from utils import (
     ensure_output_layout,
     get_output_layout,
 )
+from load_config import get as config
 
 # === Defaults ===
-DEFAULT_VERSION = "v3.4.3"
-DEFAULT_ARCH = "x64"
-DEFAULT_CONFIG = "Release"
+DEFAULT_VERSION = config("mediasoupclient.default_version")
+DEFAULT_ARCH = config("toolchain.default_arch")
+DEFAULT_CONFIG = config("toolchain.default_config")
 DEFAULT_JOBS = 8
 
 
