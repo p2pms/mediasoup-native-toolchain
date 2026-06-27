@@ -25,6 +25,9 @@ on:
     # Weekly build: Sunday 20:00 UTC (Monday 04:00 CST)
     - cron: '0 20 * * 0'
 
+permissions:
+  contents: write
+
 env:
   WEBRTC_BRANCH: ${{ github.event.inputs.webrtc_branch || 'branch-heads/6099' }}
   MEDIASOUPCLIENT_VERSION: ${{ github.event.inputs.mediasoupclient_version || '3.4.3' }}
