@@ -69,9 +69,20 @@ jobs:
           git config --global core.preloadindex true
 
       # --------------------------------------------------------------------------------------------
-      # Step 4: Build WebRTC from source
+      # Step 4: Cache/Restore WebRTC build output
+      # --------------------------------------------------------------------------------------------
+      - name: Cache WebRTC
+        id: cache-webrtc
+        uses: actions/cache@v4
+        with:
+          path: output/webrtc/
+          key: webrtc-${{ env.WEBRTC_BRANCH }}-${{ env.ARCH }}-${{ env.CONFIG }}
+
+      # --------------------------------------------------------------------------------------------
+      # Step 5: Build WebRTC from source (skipped when cache hits)
       # --------------------------------------------------------------------------------------------
       - name: Build WebRTC
+        if: steps.cache-webrtc.outputs.cache-hit != 'true'
         run: |
           python scripts/build_webrtc.py `
             --branch "$env:WEBRTC_BRANCH" `
@@ -82,7 +93,7 @@ jobs:
         # Expected runtime: ~120-150 minutes
 
       # --------------------------------------------------------------------------------------------
-      # Step 5: Build libmediasoupclient
+      # Step 6: Build libmediasoupclient
       # --------------------------------------------------------------------------------------------
       - name: Build libmediasoupclient
         run: |
@@ -95,7 +106,7 @@ jobs:
         # Expected runtime: ~5-10 minutes
 
       # --------------------------------------------------------------------------------------------
-      # Step 6: Package combined toolchain
+      # Step 7: Package combined toolchain
       # --------------------------------------------------------------------------------------------
       - name: Package toolchain
         run: |
@@ -107,7 +118,7 @@ jobs:
         shell: pwsh
 
       # --------------------------------------------------------------------------------------------
-      # Step 7: Determine release tag
+      # Step 8: Determine release tag
       # --------------------------------------------------------------------------------------------
       - name: Generate release tag
         id: tag
@@ -120,7 +131,7 @@ jobs:
         shell: pwsh
 
       # --------------------------------------------------------------------------------------------
-      # Step 8: Create GitHub Release with artifacts
+      # Step 9: Create GitHub Release with artifacts
       # --------------------------------------------------------------------------------------------
       - name: Create Release
         uses: softprops/action-gh-release@v2
