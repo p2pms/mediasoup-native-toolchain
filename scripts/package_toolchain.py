@@ -118,7 +118,6 @@ def package_toolchain(webrtc_branch, ms_version, arch, config):
     ms_repo = os.path.join(src_root, "libmediasoupclient")
 
     versions = {
-        "version": "1.0.0",
         "platform": f"windows-{arch}",
         "config": config,
         "build_date": datetime.now().strftime("%Y-%m-%d"),

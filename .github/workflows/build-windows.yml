@@ -108,7 +108,7 @@ jobs:
         run: |
           $webrtcTag = "$env:WEBRTC_BRANCH" -replace '/', '-'
           $msTag = "$env:MEDIASOUPCLIENT_VERSION" -replace '/', '-'
-          $tag = "webrtc-$webrtcTag-ms-$msTag"
+          $tag = "webrtc-$webrtcTag-ms-$msTag-b${{ github.run_number }}"
           echo "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           echo "archive_name=mediasoup-native-toolchain-windows-$env:ARCH-$env:CONFIG.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         shell: pwsh
