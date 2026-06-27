@@ -316,10 +316,12 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
     # for absl::optional, absl::string_view, etc. used in WebRTC public API).
     # All other third_party/ directories (build tools, test frameworks, codec
     # implementations, etc.) are excluded to avoid bloat and permission errors.
-    exclude_dirs = {'out', 'examples', 'testing', 'build', 'tools', 'infra', 'docs', 'experiments', 'third_party'}
+    # NOTE: only exclude top-level third_party/; nested ones like
+    # rtc_base/third_party/sigslot/ are needed by public API headers.
+    exclude_dirs = {'out', 'examples', 'testing', 'build', 'tools', 'infra', 'docs', 'experiments'}
     copied = 0
     for root, dirs, files in os.walk(src_dir):
-        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        dirs[:] = [d for d in dirs if d not in exclude_dirs and not (root == src_dir and d == 'third_party')]
         for file in files:
             if file.endswith('.h'):
                 src_file = os.path.join(root, file)
