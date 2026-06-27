@@ -1,31 +1,31 @@
 # ==================================================================================================
-# mediasoup-native-toolchain 构建配置
-# 本文件是所有构建参数的单一事实来源。
-# Python 构建脚本和 CI 工作流均从本文件读取默认值。
-# 升级 WebRTC 或 mediasoupclient 版本时，只需修改此文件。
+# mediasoup-native-toolchain build configuration
+# Single source of truth for all build parameters.
+# Python build scripts and CI workflows read defaults from this file.
+# To upgrade WebRTC or mediasoupclient, edit this file only.
 # ==================================================================================================
 
 # --------------------------------------------------------------------------------------------------
-# WebRTC 构建参数
+# WebRTC build parameters
 # --------------------------------------------------------------------------------------------------
 webrtc:
-  default_branch: "branch-heads/6099"    # WebRTC 分支（M119/M120）
+  default_branch: "branch-heads/6099"    # WebRTC branch (M119/M120)
   gn_args:
-    rtc_use_h264: true                   # 启用 H.264 编码
-    proprietary_codecs: true             # 启用专有编解码器（H.264）
-    use_rtti: true                       # 启用 RTTI（兼容 Qt）
-    use_custom_libcxx: false             # 使用 MSVC STL（而非 libc++）
-    treat_warnings_as_errors: false      # 不将警告视为错误
+    rtc_use_h264: true                   # Enable H.264 encoding
+    proprietary_codecs: true             # Enable proprietary codecs (H.264)
+    use_rtti: true                       # Enable RTTI (required by Qt)
+    use_custom_libcxx: false             # Use MSVC STL instead of libc++
+    treat_warnings_as_errors: false      # Do not treat warnings as errors
 
 # --------------------------------------------------------------------------------------------------
-# libmediasoupclient 构建参数
+# libmediasoupclient build parameters
 # --------------------------------------------------------------------------------------------------
 mediasoupclient:
   default_version: "v3.4.3"             # libmediasoupclient git tag
 
 # --------------------------------------------------------------------------------------------------
-# 工具链通用构建参数
+# Common toolchain build parameters
 # --------------------------------------------------------------------------------------------------
 toolchain:
-  default_config: "Release"              # 默认构建配置
-  default_arch: "x64"                    # 默认目标架构
+  default_config: "Release"              # Default build configuration
+  default_arch: "x64"                    # Default target architecture
