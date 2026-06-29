@@ -337,10 +337,18 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
                 except Exception as e:
                     print(f"[-] Skipped {file}: {e}")
 
-    # Copy abseil-cpp headers separately (the only third_party dependency needed)
-    abseil_src = os.path.join(src_dir, "third_party", "abseil-cpp")
-    if os.path.exists(abseil_src):
-        for root, dirs, files in os.walk(abseil_src):
+    # Copy selected third_party headers that are required by consumers:
+    #   abseil-cpp  - absl::optional, absl::string_view used in WebRTC public API
+    #   boringssl   - OpenSSL API headers needed by ASIO with SSL
+    #   libyuv      - libyuv.h needed by desktop_capturer and d3d_video_renderer
+
+    def _copy_third_party_headers(subdir_name):
+        src = os.path.join(src_dir, "third_party", subdir_name)
+        if not os.path.exists(src):
+            print(f"[!] Warning: third_party/{subdir_name} not found, skipping")
+            return 0
+        count = 0
+        for root, dirs, files in os.walk(src):
             for file in files:
                 if file.endswith('.h'):
                     src_file = os.path.join(root, file)
@@ -352,9 +360,14 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
                             os.chmod(dest_file, 0o777)
                             os.remove(dest_file)
                         shutil.copy2(src_file, dest_file)
-                        copied += 1
+                        count += 1
                     except Exception as e:
-                        print(f"[-] Skipped {file}: {e}")
+                        print(f"[-] Skipped {subdir_name}/{file}: {e}")
+        return count
+
+    copied += _copy_third_party_headers("abseil-cpp")
+    copied += _copy_third_party_headers("boringssl")
+    copied += _copy_third_party_headers("libyuv")
 
     print(f"[+] Packaged {copied} header files.")
 
