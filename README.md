@@ -9,7 +9,7 @@ Building mediasoup-based native clients requires compiling **WebRTC** from sourc
 ## Produced Artifacts
 
 ```
-mediasoup-native-toolchain-windows-x64-Release.zip
+webrtc-r6099-ms-3.4.3-win-x64-release-b*.zip
 ├── webrtc/
 │   ├── include/          # WebRTC C++ headers
 │   └── lib/
@@ -30,7 +30,7 @@ Each release includes:
 
 | File | Description |
 |------|-------------|
-| `mediasoup-native-toolchain-windows-x64-Release.zip` | Combined toolchain archive |
+| `webrtc-r6099-ms-3.4.3-win-x64-release-b*.zip` | Combined toolchain archive |
 | `VERSIONS.json` | Version manifest with component versions and SHA256 |
 
 ## Usage in Downstream Projects
@@ -45,7 +45,7 @@ python tools/download_deps.py
 ### Manual Download
 
 1. Go to the [Releases page](https://github.com/p2pms/mediasoup-native-toolchain/releases)
-2. Download the latest `mediasoup-native-toolchain-windows-x64-Release.zip`
+2. Download the latest `webrtc-r*-ms-*-win-x64-*-b*.zip`
 3. Extract to a directory, then pass paths to CMake:
 
 ```cmake
@@ -78,7 +78,7 @@ python scripts/build_mediasoupclient.py --version v3.4.3 --config Release --arch
 # Step 3: Package combined toolchain
 python scripts/package_toolchain.py --webrtc-branch branch-heads/6099 --mediasoupclient-version v3.4.3
 
-# Output will be at: output/archive/mediasoup-native-toolchain-windows-x64-Release.zip
+# Output will be at: output/archive/webrtc-r6099-ms-3.4.3-win-x64-release-b*.zip
 ```
 
 ### Build Options
