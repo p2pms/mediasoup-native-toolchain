@@ -311,17 +311,18 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
     else:
         print(f"[!] Warning: webrtc library not found at {lib_path}")
 
-    # Copy headers (filtered)
-    # Only include WebRTC public API headers and abseil-cpp (required by consumers
-    # for absl::optional, absl::string_view, etc. used in WebRTC public API).
-    # All other third_party/ directories (build tools, test frameworks, codec
-    # implementations, etc.) are excluded to avoid bloat and permission errors.
-    # NOTE: only exclude top-level third_party/; nested ones like
-    # rtc_base/third_party/sigslot/ are needed by public API headers.
+    # Copy headers (all .h files, including third_party/)
+    # Walk the entire WebRTC source tree and copy all .h files, including those
+    # under third_party/. The package_toolchain.py script will later prune the
+    # third_party/ directory in the staging area to only keep the subdirectories
+    # that consumers actually need (abseil-cpp, boringssl, libyuv).
+    # This two-phase approach (copy all in build, prune in package) avoids
+    # invalidating the CI build cache when the set of required third_party
+    # subdirectories changes.
     exclude_dirs = {'out', 'examples', 'testing', 'build', 'tools', 'infra', 'docs', 'experiments'}
     copied = 0
     for root, dirs, files in os.walk(src_dir):
-        dirs[:] = [d for d in dirs if d not in exclude_dirs and not (root == src_dir and d == 'third_party')]
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for file in files:
             if file.endswith('.h'):
                 src_file = os.path.join(root, file)
@@ -336,38 +337,6 @@ def build_webrtc(branch, arch, config, do_build, do_clean):
                     copied += 1
                 except Exception as e:
                     print(f"[-] Skipped {file}: {e}")
-
-    # Copy selected third_party headers that are required by consumers:
-    #   abseil-cpp  - absl::optional, absl::string_view used in WebRTC public API
-    #   boringssl   - OpenSSL API headers needed by ASIO with SSL
-    #   libyuv      - libyuv.h needed by desktop_capturer and d3d_video_renderer
-
-    def _copy_third_party_headers(subdir_name):
-        src = os.path.join(src_dir, "third_party", subdir_name)
-        if not os.path.exists(src):
-            print(f"[!] Warning: third_party/{subdir_name} not found, skipping")
-            return 0
-        count = 0
-        for root, dirs, files in os.walk(src):
-            for file in files:
-                if file.endswith('.h'):
-                    src_file = os.path.join(root, file)
-                    rel_path = os.path.relpath(src_file, src_dir)
-                    dest_file = os.path.join(out_include_dir, rel_path)
-                    ensure_dir(os.path.dirname(dest_file))
-                    try:
-                        if os.path.exists(dest_file):
-                            os.chmod(dest_file, 0o777)
-                            os.remove(dest_file)
-                        shutil.copy2(src_file, dest_file)
-                        count += 1
-                    except Exception as e:
-                        print(f"[-] Skipped {subdir_name}/{file}: {e}")
-        return count
-
-    copied += _copy_third_party_headers("abseil-cpp")
-    copied += _copy_third_party_headers("boringssl")
-    copied += _copy_third_party_headers("libyuv")
 
     print(f"[+] Packaged {copied} header files.")
 

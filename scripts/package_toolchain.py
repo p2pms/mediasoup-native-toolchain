@@ -93,6 +93,21 @@ def package_toolchain(webrtc_branch, ms_version, arch, config):
     shutil.copytree(webrtc_dir, os.path.join(staging_dir, "webrtc"))
     print("[+] Copied webrtc artifacts to staging.")
 
+    # Prune unwanted third_party subdirectories from the staging area.
+    # The build step copies all third_party .h files into the output; here
+    # we keep only those that p2pms C++ SDK actually needs.
+    THIRD_PARTY_KEEP = {"abseil-cpp", "boringssl", "libyuv"}
+    third_party_dir = os.path.join(staging_dir, "webrtc", "include", "third_party")
+    if os.path.exists(third_party_dir):
+        for entry in os.listdir(third_party_dir):
+            if entry not in THIRD_PARTY_KEEP:
+                path = os.path.join(third_party_dir, entry)
+                if os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
+                else:
+                    os.remove(path)
+                print(f"[-] Pruned third_party/{entry} from staging.")
+
     # Copy mediasoupclient
     shutil.copytree(mediasoup_dir, os.path.join(staging_dir, "mediasoupclient"))
     print("[+] Copied mediasoupclient artifacts to staging.")
