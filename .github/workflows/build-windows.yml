@@ -21,6 +21,14 @@ on:
         description: 'libmediasoupclient version tag'
         required: false
         default: '3.4.3'
+      config:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: choice
+        options:
+          - Release
+          - Debug
   schedule:
     # Weekly build: Sunday 20:00 UTC (Monday 04:00 CST)
     - cron: '0 20 * * 0'
@@ -31,7 +39,7 @@ permissions:
 env:
   WEBRTC_BRANCH: ${{ github.event.inputs.webrtc_branch || 'branch-heads/6099' }}
   MEDIASOUPCLIENT_VERSION: ${{ github.event.inputs.mediasoupclient_version || '3.4.3' }}
-  CONFIG: Release
+  CONFIG: ${{ github.event.inputs.config || 'Release' }}
   ARCH: x64
 
 jobs:
@@ -125,7 +133,7 @@ jobs:
         run: |
           $webrtcTag = "$env:WEBRTC_BRANCH" -replace '/', '-'
           $msTag = "$env:MEDIASOUPCLIENT_VERSION" -replace '/', '-'
-          $tag = "webrtc-$webrtcTag-ms-$msTag-b${{ github.run_number }}"
+          $tag = "webrtc-$webrtcTag-ms-$msTag-$env:CONFIG-b${{ github.run_number }}"
           echo "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           echo "archive_name=mediasoup-native-toolchain-windows-$env:ARCH-$env:CONFIG.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         shell: pwsh
@@ -146,7 +154,7 @@ jobs:
             | WebRTC | `${{ env.WEBRTC_BRANCH }}` |
             | libmediasoupclient | `${{ env.MEDIASOUPCLIENT_VERSION }}` |
             | Platform | Windows x64 |
-            | Configuration | Release |
+            | Configuration | ${{ env.CONFIG }} |
 
             ### Contents
 
@@ -160,7 +168,7 @@ jobs:
             python tools/build/download_deps.py
             ```
           files: |
-            output/archive/mediasoup-native-toolchain-windows-x64-Release.zip
+            output/archive/mediasoup-native-toolchain-windows-x64-${{ env.CONFIG }}.zip
             output/archive/VERSIONS.json
           generate_release_notes: false
           make_latest: true

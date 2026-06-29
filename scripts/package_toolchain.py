@@ -103,8 +103,15 @@ def package_toolchain(webrtc_branch, ms_version, arch, config):
             if entry not in THIRD_PARTY_KEEP:
                 path = os.path.join(third_party_dir, entry)
                 if os.path.isdir(path):
+                    # chmod to writable first to handle read-only CIPD files on Windows
+                    for root, dirs, files in os.walk(path, topdown=False):
+                        for name in files:
+                            os.chmod(os.path.join(root, name), 0o777)
+                        for name in dirs:
+                            os.chmod(os.path.join(root, name), 0o777)
                     shutil.rmtree(path, ignore_errors=True)
                 else:
+                    os.chmod(path, 0o777)
                     os.remove(path)
                 print(f"[-] Pruned third_party/{entry} from staging.")
 
