@@ -122,7 +122,8 @@ jobs:
             --webrtc-branch "$env:WEBRTC_BRANCH" `
             --mediasoupclient-version "$env:MEDIASOUPCLIENT_VERSION" `
             --config $env:CONFIG `
-            --arch $env:ARCH
+            --arch $env:ARCH `
+            --build-number ${{ github.run_number }}
         shell: pwsh
 
       # --------------------------------------------------------------------------------------------
@@ -131,11 +132,11 @@ jobs:
       - name: Generate release tag
         id: tag
         run: |
-          $webrtcTag = "$env:WEBRTC_BRANCH" -replace '/', '-'
+          $webrtcTag = "$env:WEBRTC_BRANCH" -replace 'branch-heads/', 'r'
           $msTag = "$env:MEDIASOUPCLIENT_VERSION" -replace '/', '-'
-          $tag = "webrtc-$webrtcTag-ms-$msTag-$env:CONFIG-b${{ github.run_number }}"
+          $tag = "webrtc-$webrtcTag-ms-$msTag-win-$env:ARCH-$env:CONFIG-b${{ github.run_number }}".ToLower()
           echo "release_tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          echo "archive_name=mediasoup-native-toolchain-windows-$env:ARCH-$env:CONFIG.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "archive_name=$tag.zip" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
         shell: pwsh
 
       # --------------------------------------------------------------------------------------------
@@ -145,7 +146,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          name: "mediasoup-native-toolchain ${{ steps.tag.outputs.release_tag }}"
+          name: ${{ steps.tag.outputs.release_tag }}
           body: |
             ## mediasoup-native-toolchain
 
@@ -168,7 +169,7 @@ jobs:
             python tools/build/download_deps.py
             ```
           files: |
-            output/archive/mediasoup-native-toolchain-windows-x64-${{ env.CONFIG }}.zip
+            output/archive/${{ steps.tag.outputs.archive_name }}
             output/archive/VERSIONS.json
           generate_release_notes: false
           make_latest: true

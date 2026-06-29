@@ -65,7 +65,7 @@ def get_git_commit(repo_dir):
 ####################################################################################################
 # Main packaging logic
 ####################################################################################################
-def package_toolchain(webrtc_branch, ms_version, arch, config):
+def package_toolchain(webrtc_branch, ms_version, arch, config, build_number=""):
     layout = ensure_output_layout()
 
     webrtc_dir = layout["webrtc_out"]
@@ -165,7 +165,10 @@ def package_toolchain(webrtc_branch, ms_version, arch, config):
     # ------------------------------------------------------------------
     # Step 4: Create final zip archive
     # ------------------------------------------------------------------
-    archive_name = f"mediasoup-native-toolchain-windows-{arch}-{config}"
+    branch_short = webrtc_branch.replace("branch-heads/", "r").replace("/", "-")
+    ms_short = ms_version.replace("/", "-")
+    bn = f"-b{build_number}" if build_number else ""
+    archive_name = f"webrtc-{branch_short}-ms-{ms_short}-win-{arch}-{config}{bn}".lower()
     zip_path = os.path.join(archive_dir, f"{archive_name}.zip")
 
     if os.path.exists(zip_path):
@@ -201,7 +204,7 @@ def main():
     print("==================================================")
     print("[*] Packaging mediasoup-native-toolchain")
     print("==================================================")
-    package_toolchain(args.webrtc_branch, args.mediasoupclient_version, args.arch, args.config)
+    package_toolchain(args.webrtc_branch, args.mediasoupclient_version, args.arch, args.config, args.build_number)
 
 
 if __name__ == "__main__":
