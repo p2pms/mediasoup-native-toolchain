@@ -47,6 +47,8 @@ def parse_args():
                         help="libmediasoupclient version used for the build")
     parser.add_argument("--arch", type=str, default="x64", choices=["x64", "x86", "arm64"])
     parser.add_argument("--config", type=str, default="Release", choices=["Release", "Debug"])
+    parser.add_argument("--build-number", type=str, default="",
+                        help="Build number (e.g. 9), appended as -bN to the archive name")
     return parser.parse_args()
 
 
